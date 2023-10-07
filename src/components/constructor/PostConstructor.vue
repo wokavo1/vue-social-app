@@ -12,6 +12,7 @@
         <ConstructorBrick v-for="brick in bricks" :brick="brick" :key="brick.id" @onDelete="onBrickDelete" />
     </div>
     <WhiteAnimatedButton @click="addNewBrick" class="">Add Brick</WhiteAnimatedButton>
+    <button @click="dump_bricks()">dump_bricks</button>
 </template>
 
 <script>
@@ -38,6 +39,9 @@ export default {
                 data: {},
             });
             this.id++;
+        },
+        dump_bricks() {
+            console.log("bricks = ", this.bricks);
         },
     },
     computed: {},

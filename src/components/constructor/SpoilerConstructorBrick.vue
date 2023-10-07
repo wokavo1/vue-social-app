@@ -37,26 +37,10 @@
             <div v-else-if="selectedType == 'video'">
                 <div v-if="brickError != ''" class="error-message">{{ brickError }}</div>
                 <MyInput v-model:value="brick.data.video" placeholder="enter a youtube video link"></MyInput>
-                <YTFrame v-if="brick.data.valid == true" :url="brick.data.video"></YTFrame>
                 <WhiteAnimatedButton @click="OnYoutubeVideoTryClick">Try</WhiteAnimatedButton>
             </div>
             <!-- LIST -->
-            <div v-else-if="selectedType == 'list'" class="brick-list">
-                <MyInput v-for="(item, i) in brick.data.list" style="margin-bottom: 5px" v-model:value="brick.data.list[i]"></MyInput>
-                <div>
-                    <MySelect v-model:value="brick.data.listType" :options="LIST_TYPES"></MySelect>
-                    <WhiteAnimatedButton @click="addListItem">Add List Item</WhiteAnimatedButton>
-                </div>
-            </div>
-            <!-- SPOILER -->
-            <div v-else-if="selectedType == 'spoiler'">
-                <SpoilerConstructorBrick
-                    v-for="_brick in brick.data.bricks"
-                    :brick="_brick"
-                    @onDelete="onSpoilerBrickDelete"
-                ></SpoilerConstructorBrick>
-                <WhiteAnimatedButton @click="spoilerAddNewBrick" class="">Add Brick</WhiteAnimatedButton>
-            </div>
+            <div v-else-if="selectedType == 'list'">list type selected!</div>
             <!-- NONE -->
             <div v-else>choose a brick type</div>
             <button @click="dump()">dump</button>
@@ -65,10 +49,7 @@
 </template>
 
 <script>
-import SpoilerConstructorBrick from "./SpoilerConstructorBrick.vue";
-import YTFrame from "./YTFrame.vue";
-const BRICK_TYPES = ["text", "heading", "quote", "image", "video", "list", "spoiler"];
-const LIST_TYPES = ["dots", "numbers"];
+const BRICK_TYPES = ["text", "heading", "quote", "image", "video", "list"];
 
 export default {
     emits: ["onDelete"],
@@ -82,9 +63,7 @@ export default {
         return {
             selectedType: "",
             BRICK_TYPES: BRICK_TYPES,
-            LIST_TYPES: LIST_TYPES,
             brickError: "",
-            id: 0,
         };
     },
     methods: {
@@ -102,38 +81,20 @@ export default {
             if (this.brick.data.video == "") {
                 console.log("empty");
                 this.brickError = "";
-                this.brick.data.valid = false;
                 return;
             }
             if (this.brick.data.video && matchYoutubeUrl(this.brick.data.video)) {
                 console.log("valid");
                 this.brickError = "";
-                this.brick.data.valid = true;
             } else {
                 console.log("invalid");
                 this.brickError = "this is not a valid youtube link";
-                this.brick.data.valid = false;
             }
-        },
-        spoilerAddNewBrick() {
-            this.brick.data.bricks.push({
-                id: this.id,
-                data: {},
-            });
-            this.id++;
-        },
-        onSpoilerBrickDelete(brick) {
-            this.brick.data.bricks = this.brick.data.bricks.filter((element) => {
-                return element.id != brick.id;
-            });
-        },
-        addListItem() {
-            this.brick.data.list.push("");
         },
     },
     computed: {},
     mounted() {
-        //console.log("constructor-brick mounted");
+        //console.log("spoiler-constructor-brick mounted");
         this.selectedType = "text";
     },
     watch: {
@@ -142,19 +103,10 @@ export default {
                 this.brick.type = new_val;
                 this.brick.data = {};
                 this.brickError = "";
-
-                if (new_val == "spoiler") {
-                    console.log("selectedType: spoiler!");
-                    this.brick.data.bricks = [];
-                } else if (new_val == "list") {
-                    console.log("selectedType: list!");
-                    this.brick.data.listType = "dots";
-                    this.brick.data.list = [];
-                }
             }
         },
     },
-    components: { SpoilerConstructorBrick, YTFrame },
+    components: {},
 };
 
 function matchYoutubeUrl(url) {
@@ -164,10 +116,6 @@ function matchYoutubeUrl(url) {
 </script>
 
 <style scoped>
-.brick-list {
-    display: flex;
-    flex-direction: column;
-}
 .error-message {
     background-color: rgb(236, 155, 155);
     border: 1px solid red;

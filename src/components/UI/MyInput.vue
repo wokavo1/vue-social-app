@@ -1,5 +1,5 @@
 <template>
-    <input :type="type" :value="value" @input="updateInput" class="input" type="text" />
+    <input :type="type" :value="value" :placeholder="placeholder" @input="updateInput" class="input" type="text" />
 </template>
 
 <script>
@@ -12,6 +12,10 @@ export default {
         type: {
             type: String,
             default: "text",
+        },
+        placeholder: {
+            type: String,
+            default: "",
         },
     },
     methods: {

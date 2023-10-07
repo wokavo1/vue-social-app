@@ -1,5 +1,5 @@
 <template>
-    <textarea :type="type" :value="value" :rows="rows" @input="updateInput" class="input"></textarea>
+    <textarea :type="type" :value="value" :rows="rows" :placeholder="placeholder" @input="updateInput" class="input"></textarea>
 </template>
 
 <script>
@@ -16,6 +16,10 @@ export default {
         rows: {
             type: String,
             default: "4",
+        },
+        placeholder: {
+            type: String,
+            default: "",
         },
     },
     methods: {
