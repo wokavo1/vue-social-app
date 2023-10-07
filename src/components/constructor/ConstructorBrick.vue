@@ -113,14 +113,10 @@ export default {
 .props-group-item {
     margin: 0px 10px;
 }
-.btns-group {
-}
 .data {
     border-top: 1px solid black;
     margin-top: 5px;
     padding: 5px 10px;
-}
-.text {
 }
 .heading {
     font-weight: bold;
