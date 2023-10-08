@@ -34,10 +34,15 @@
                 </div>
             </div>
             <!-- VIDEO -->
-            <div v-else-if="selectedType == 'video'">
+            <div v-else-if="selectedType == 'video'" class="brick-video">
                 <div v-if="brickError != ''" class="error-message">{{ brickError }}</div>
                 <MyInput v-model:value="brick.data.video" placeholder="enter a youtube video link"></MyInput>
-                <YTFrame v-if="brick.data.valid == true" :url="brick.data.video"></YTFrame>
+                <YTFrame
+                    v-model:url="brick.data.video"
+                    v-if="brick.data.valid == true"
+                    :url="brick.data.video"
+                    style="align-self: center; margin: 15px 0px"
+                ></YTFrame>
                 <WhiteAnimatedButton @click="OnYoutubeVideoTryClick">Try</WhiteAnimatedButton>
             </div>
             <!-- LIST -->
@@ -97,7 +102,7 @@ export default {
         onImageUrl(url) {
             this.brick.data.imageUrl = url;
         },
-        OnYoutubeVideoTryClick() {
+        async OnYoutubeVideoTryClick() {
             console.log("OnYoutubeVideoTryClick");
             if (this.brick.data.video == "") {
                 console.log("empty");
@@ -106,8 +111,13 @@ export default {
                 return;
             }
             if (this.brick.data.video && matchYoutubeUrl(this.brick.data.video)) {
+                // let tmp = this.brick.data.video;
+                // this.brick.data.video = "";
+                // this.brick.data.video = tmp;
                 console.log("valid");
                 this.brickError = "";
+                this.brick.data.valid = false;
+                await this.$nextTick();
                 this.brick.data.valid = true;
             } else {
                 console.log("invalid");
@@ -164,6 +174,10 @@ function matchYoutubeUrl(url) {
 </script>
 
 <style scoped>
+.brick-video {
+    display: flex;
+    flex-direction: column;
+}
 .brick-list {
     display: flex;
     flex-direction: column;

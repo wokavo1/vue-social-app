@@ -34,13 +34,25 @@
                 </div>
             </div>
             <!-- VIDEO -->
-            <div v-else-if="selectedType == 'video'">
+            <div v-else-if="selectedType == 'video'" class="brick-video">
                 <div v-if="brickError != ''" class="error-message">{{ brickError }}</div>
                 <MyInput v-model:value="brick.data.video" placeholder="enter a youtube video link"></MyInput>
+                <YTFrame
+                    v-model:url="brick.data.video"
+                    v-if="brick.data.valid == true"
+                    :url="brick.data.video"
+                    style="align-self: center; margin: 15px 0px"
+                ></YTFrame>
                 <WhiteAnimatedButton @click="OnYoutubeVideoTryClick">Try</WhiteAnimatedButton>
             </div>
             <!-- LIST -->
-            <div v-else-if="selectedType == 'list'">list type selected!</div>
+            <div v-else-if="selectedType == 'list'" class="brick-list">
+                <MyInput v-for="(item, i) in brick.data.list" style="margin-bottom: 5px" v-model:value="brick.data.list[i]"></MyInput>
+                <div>
+                    <MySelect v-model:value="brick.data.listType" :options="LIST_TYPES"></MySelect>
+                    <WhiteAnimatedButton @click="addListItem">Add List Item</WhiteAnimatedButton>
+                </div>
+            </div>
             <!-- NONE -->
             <div v-else>choose a brick type</div>
             <button @click="dump()">dump</button>
@@ -49,7 +61,9 @@
 </template>
 
 <script>
+import YTFrame from "./YTFrame.vue";
 const BRICK_TYPES = ["text", "heading", "quote", "image", "video", "list"];
+const LIST_TYPES = ["dots", "numbers"];
 
 export default {
     emits: ["onDelete"],
@@ -63,7 +77,9 @@ export default {
         return {
             selectedType: "",
             BRICK_TYPES: BRICK_TYPES,
+            LIST_TYPES: LIST_TYPES,
             brickError: "",
+            id: 0,
         };
     },
     methods: {
@@ -76,25 +92,48 @@ export default {
         onImageUrl(url) {
             this.brick.data.imageUrl = url;
         },
-        OnYoutubeVideoTryClick() {
+        async OnYoutubeVideoTryClick() {
             console.log("OnYoutubeVideoTryClick");
             if (this.brick.data.video == "") {
                 console.log("empty");
                 this.brickError = "";
+                this.brick.data.valid = false;
                 return;
             }
             if (this.brick.data.video && matchYoutubeUrl(this.brick.data.video)) {
+                // let tmp = this.brick.data.video;
+                // this.brick.data.video = "";
+                // this.brick.data.video = tmp;
                 console.log("valid");
                 this.brickError = "";
+                this.brick.data.valid = false;
+                await this.$nextTick();
+                this.brick.data.valid = true;
             } else {
                 console.log("invalid");
                 this.brickError = "this is not a valid youtube link";
+                this.brick.data.valid = false;
             }
+        },
+        spoilerAddNewBrick() {
+            this.brick.data.bricks.push({
+                id: this.id,
+                data: {},
+            });
+            this.id++;
+        },
+        onSpoilerBrickDelete(brick) {
+            this.brick.data.bricks = this.brick.data.bricks.filter((element) => {
+                return element.id != brick.id;
+            });
+        },
+        addListItem() {
+            this.brick.data.list.push("");
         },
     },
     computed: {},
     mounted() {
-        //console.log("spoiler-constructor-brick mounted");
+        //console.log("constructor-brick mounted");
         this.selectedType = "text";
     },
     watch: {
@@ -103,10 +142,19 @@ export default {
                 this.brick.type = new_val;
                 this.brick.data = {};
                 this.brickError = "";
+
+                if (new_val == "spoiler") {
+                    console.log("selectedType: spoiler!");
+                    this.brick.data.bricks = [];
+                } else if (new_val == "list") {
+                    console.log("selectedType: list!");
+                    this.brick.data.listType = "dots";
+                    this.brick.data.list = [];
+                }
             }
         },
     },
-    components: {},
+    components: { YTFrame },
 };
 
 function matchYoutubeUrl(url) {
@@ -116,6 +164,14 @@ function matchYoutubeUrl(url) {
 </script>
 
 <style scoped>
+.brick-video {
+    display: flex;
+    flex-direction: column;
+}
+.brick-list {
+    display: flex;
+    flex-direction: column;
+}
 .error-message {
     background-color: rgb(236, 155, 155);
     border: 1px solid red;
