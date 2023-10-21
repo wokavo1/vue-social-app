@@ -87,15 +87,15 @@ export default {
             this.$emit("onDelete", this.brick);
         },
         dump() {
-            console.log("brick #" + this.brick.id + " = ", this.brick);
+            //console.log("brick #" + this.brick.id + " = ", this.brick);
         },
         onImageUrl(url) {
             this.brick.data.imageUrl = url;
         },
         async OnYoutubeVideoTryClick() {
-            console.log("OnYoutubeVideoTryClick");
+            //console.log("OnYoutubeVideoTryClick");
             if (this.brick.data.video == "") {
-                console.log("empty");
+                //console.log("empty");
                 this.brickError = "";
                 this.brick.data.valid = false;
                 return;
@@ -104,13 +104,13 @@ export default {
                 // let tmp = this.brick.data.video;
                 // this.brick.data.video = "";
                 // this.brick.data.video = tmp;
-                console.log("valid");
+                //console.log("valid");
                 this.brickError = "";
                 this.brick.data.valid = false;
                 await this.$nextTick();
                 this.brick.data.valid = true;
             } else {
-                console.log("invalid");
+                //console.log("invalid");
                 this.brickError = "this is not a valid youtube link";
                 this.brick.data.valid = false;
             }
@@ -133,24 +133,26 @@ export default {
     },
     computed: {},
     mounted() {
-        //console.log("constructor-brick mounted");
-        this.selectedType = "text";
+        //console.log(this.brick.type);
+        this.selectedType = this.brick.type;
+        //console.log("selected type = ", this.selectedType);
+        //if (this.selectedType == null || this.selectedType == undefined || this.selectedType == "") this.selectedType = "text";
     },
     watch: {
         selectedType(new_val, old_val) {
+            //console.log("watch : selectedType : new_val = " + new_val + "; old_val = " + old_val + ";");
             if (new_val != old_val) {
                 this.brick.type = new_val;
-                this.brick.data = {};
+                // this.brick.data = {};
                 this.brickError = "";
-
-                if (new_val == "spoiler") {
-                    console.log("selectedType: spoiler!");
-                    this.brick.data.bricks = [];
-                } else if (new_val == "list") {
-                    console.log("selectedType: list!");
-                    this.brick.data.listType = "dots";
-                    this.brick.data.list = [];
-                }
+                // if (new_val == "spoiler") {
+                //     //console.log("selectedType: spoiler!");
+                //     this.brick.data.bricks = [];
+                // } else if (new_val == "list") {
+                //     //console.log("selectedType: list!");
+                //     this.brick.data.listType = "dots";
+                //     this.brick.data.list = [];
+                // }
             }
         },
     },
@@ -201,6 +203,7 @@ function matchYoutubeUrl(url) {
     padding: 10px;
     margin: 5px;
     border: 2px solid wheat;
+    width: 100%;
 }
 .props-group {
     display: flex;
