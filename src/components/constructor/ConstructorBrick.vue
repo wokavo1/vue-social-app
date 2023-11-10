@@ -2,26 +2,26 @@
     <div class="brick-container">
         <div class="head d-flex flex-row w-100 justify-content-between align-items-center">
             <div class="props-group">
-                <div class="props-group-item">brick#{{ this.brick.id }}</div>
+                <!-- <div class="props-group-item">brick#{{ this.brick.id }}</div> -->
                 <div class="props-group-item"><MySelect v-model:value="selectedType" :options="BRICK_TYPES"></MySelect></div>
             </div>
             <div class="btns-group">
-                <button @click="onDelete">Delete</button>
+                <GrayAnimatedButton @click="onDelete">Удалить</GrayAnimatedButton>
             </div>
         </div>
         <div class="data">
             <!-- TEXT -->
             <div v-if="selectedType == 'text'">
-                <MyTextarea class="text" v-model:value="brick.data.text" placeholder="text"></MyTextarea>
+                <MyTextarea class="text" v-model:value="brick.data.text" placeholder="Текст"></MyTextarea>
             </div>
             <!-- HEADING -->
             <div v-else-if="selectedType == 'heading'">
-                <MyInput class="heading" style="width: 100%" v-model:value="brick.data.heading" placeholder="heading"></MyInput>
+                <MyInput class="heading" style="width: 100%" v-model:value="brick.data.heading" placeholder="Заголовок"></MyInput>
             </div>
             <!-- QUOTE -->
             <div v-else-if="selectedType == 'quote'">
-                <MyTextarea class="quote" v-model:value="brick.data.quote" placeholder="quote"></MyTextarea>
-                <MyInput class="author" v-model:value="brick.data.author" placeholder="author"></MyInput>
+                <MyTextarea class="quote" v-model:value="brick.data.quote" placeholder="Цитата"></MyTextarea>
+                <MyInput class="author" v-model:value="brick.data.author" placeholder="Автор"></MyInput>
             </div>
             <!-- IMAGE -->
             <div v-else-if="selectedType == 'image'" class="row">
@@ -30,27 +30,27 @@
                 </div>
                 <div v-if="brick.data.image" class="col-9 image-preview">
                     <img :src="brick.data.imageUrl" />
-                    <MyInputSm class="caption" v-model:value="brick.data.caption" placeholder="caption"></MyInputSm>
+                    <MyInputSm class="caption" v-model:value="brick.data.caption" placeholder="Подпись"></MyInputSm>
                 </div>
             </div>
             <!-- VIDEO -->
             <div v-else-if="selectedType == 'video'" class="brick-video">
                 <div v-if="brickError != ''" class="error-message">{{ brickError }}</div>
-                <MyInput v-model:value="brick.data.video" placeholder="enter a youtube video link"></MyInput>
+                <MyInput v-model:value="brick.data.video" placeholder="Вставьте ссылку на Youtube видео"></MyInput>
                 <YTFrame
                     v-model:url="brick.data.video"
                     v-if="brick.data.valid == true"
                     :url="brick.data.video"
                     style="align-self: center; margin: 15px 0px"
                 ></YTFrame>
-                <WhiteAnimatedButton @click="OnYoutubeVideoTryClick">Try</WhiteAnimatedButton>
+                <WhiteAnimatedButton @click="OnYoutubeVideoTryClick">Попробовать ссылку</WhiteAnimatedButton>
             </div>
             <!-- LIST -->
             <div v-else-if="selectedType == 'list'" class="brick-list">
                 <MyInput v-for="(item, i) in brick.data.list" style="margin-bottom: 5px" v-model:value="brick.data.list[i]"></MyInput>
                 <div>
                     <MySelect v-model:value="brick.data.listType" :options="LIST_TYPES"></MySelect>
-                    <WhiteAnimatedButton @click="addListItem">Add List Item</WhiteAnimatedButton>
+                    <WhiteAnimatedButton @click="addListItem">Добавить</WhiteAnimatedButton>
                 </div>
             </div>
             <!-- SPOILER -->
@@ -60,11 +60,11 @@
                     :brick="_brick"
                     @onDelete="onSpoilerBrickDelete"
                 ></SpoilerConstructorBrick>
-                <WhiteAnimatedButton @click="spoilerAddNewBrick" class="">Add Brick</WhiteAnimatedButton>
+                <WhiteAnimatedButton @click="spoilerAddNewBrick" class="">Добавить элемент</WhiteAnimatedButton>
             </div>
             <!-- NONE -->
             <div v-else>choose a brick type</div>
-            <button @click="dump()">dump</button>
+            <!-- <button @click="dump()">dump</button> -->
         </div>
     </div>
 </template>
@@ -73,6 +73,7 @@
 import SpoilerConstructorBrick from "./SpoilerConstructorBrick.vue";
 import YTFrame from "./YTFrame.vue";
 const BRICK_TYPES = ["text", "heading", "quote", "image", "video", "list", "spoiler"];
+const BRICK_CODES = [8, 0, 1, 5, 4, 2, 7];
 const LIST_TYPES = ["dots", "numbers"];
 
 export default {
@@ -97,7 +98,7 @@ export default {
             this.$emit("onDelete", this.brick);
         },
         dump() {
-            //console.log("brick #" + this.brick.id + " = ", this.brick);
+            console.log("brick #" + this.brick.id + " = ", this.brick);
         },
         onImageUrl(url) {
             this.brick.data.imageUrl = url;
@@ -157,16 +158,17 @@ export default {
                 this.brick.type = new_val;
                 // this.brick.data = {};
                 this.brickError = "";
-                if (new_val == "spoiler") {
-                    //console.log("selectedType: spoiler!");
-                    if (!dragflag) {
+
+                if (!dragflag) {
+                    if (new_val == "spoiler") {
+                        //console.log("selectedType: spoiler!");
                         this.brick.data.bricks = [];
+                    } else if (new_val == "list") {
+                        //console.log("selectedType: list!");
+                        this.brick.data.listType = "dots";
+                        this.brick.data.list = [];
                     }
-                } //else if (new_val == "list") {
-                //     //console.log("selectedType: list!");
-                //     this.brick.data.listType = "dots";
-                //     this.brick.data.list = [];
-                // }
+                }
             }
         },
     },

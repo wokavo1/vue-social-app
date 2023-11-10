@@ -49,7 +49,7 @@ export default {
             try {
                 const res = await fetch(app_config.backend_url + "/auth/registration", {
                     method: "POST",
-                    cors: "no-cors",
+                    cors: app_config.cors_mode,
                     headers: {
                         "Content-Type": "application/json",
                     },
@@ -60,14 +60,14 @@ export default {
                 });
 
                 const response = await res.json();
+                console.log(response);
 
-                if (response.error) {
+                if (!response.httpCode || response.httpCode != 200) {
                     this.isBadLogin = true;
-                    this.error = response.error.message;
+                    this.error = response.message;
                     return;
                 }
 
-                //console.log(response)
                 this.isBadLogin = false;
 
                 this.$router.push("/registration/success");

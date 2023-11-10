@@ -1,68 +1,54 @@
 <template>
     <div class="brick-container">
-        <div class="head d-flex flex-row w-100 justify-content-between align-items-center">
-            <div class="props-group">
-                <!-- <div class="props-group-item">brick#{{ this.brick.id }}</div> -->
-                <div class="props-group-item"><MySelect v-model:value="selectedType" :options="BRICK_TYPES"></MySelect></div>
-            </div>
-            <div class="btns-group">
-                <GrayAnimatedButton @click="onDelete">Удалить</GrayAnimatedButton>
-            </div>
-        </div>
         <div class="data">
             <!-- TEXT -->
-            <div v-if="selectedType == 'text'">
-                <MyTextarea class="text" v-model:value="brick.data.text" placeholder="Текст"></MyTextarea>
+            <div v-if="brick.type == 'text'">
+                <div class="text">{{ brick.data.text }}</div>
             </div>
             <!-- HEADING -->
-            <div v-else-if="selectedType == 'heading'">
-                <MyInput class="heading" style="width: 100%" v-model:value="brick.data.heading" placeholder="Заголовок"></MyInput>
+            <div v-else-if="brick.type == 'heading'">
+                <div class="heading">{{ brick.data.heading }}</div>
             </div>
             <!-- QUOTE -->
-            <div v-else-if="selectedType == 'quote'">
-                <MyTextarea class="quote" v-model:value="brick.data.quote" placeholder="Цитата"></MyTextarea>
-                <MyInput class="author" v-model:value="brick.data.author" placeholder="Автор"></MyInput>
+            <div v-else-if="brick.type == 'quote'" class="d-flex flex-row justify-content-center">
+                <div class="quote">"{{ brick.data.quote }}"</div>
+                <div class="author">- {{ brick.data.author }}</div>
             </div>
             <!-- IMAGE -->
-            <div v-else-if="selectedType == 'image'" class="row">
-                <div :class="{ 'col-3': brick.data.image, 'col-12': !brick.data.image }" style="padding: 15px 0px">
-                    <MyFileSelector style="width: 100%" v-model:value="brick.data.image" @fileUrl="onImageUrl" accept="image/*"></MyFileSelector>
+            <div v-else-if="brick.type == 'image'" class="row">
+                <div class="col-12 d-flex flex-row justify-content-center">
+                    <div class="d-flex flex-column justify-content-center align-items-center">
+                        <img :src="brick.data.imageUrl" />
+                        <div class="caption">{{ brick.data.caption }}</div>
+                    </div>
                 </div>
-                <div v-if="brick.data.image" class="col-9 image-preview">
-                    <img :src="brick.data.imageUrl" />
-                    <MyInputSm class="caption" v-model:value="brick.data.caption" placeholder="Подпись"></MyInputSm>
-                </div>
+            </div>
+            <div v-else-if="brick.type == 'image'">
+                <img :src="brick.data.imageUrl" />
+                <div class="caption">{{ brick.data.caption }}</div>
             </div>
             <!-- VIDEO -->
-            <div v-else-if="selectedType == 'video'" class="brick-video">
-                <div v-if="brickError != ''" class="error-message">{{ brickError }}</div>
-                <MyInput v-model:value="brick.data.video" placeholder="Вставьте ссылку на Youtube видео"></MyInput>
-                <YTFrame
-                    v-model:url="brick.data.video"
-                    v-if="brick.data.valid == true"
-                    :url="brick.data.video"
-                    style="align-self: center; margin: 15px 0px"
-                ></YTFrame>
-                <WhiteAnimatedButton @click="OnYoutubeVideoTryClick">Попробовать ссылку</WhiteAnimatedButton>
+            <div v-else-if="brick.type == 'video'" class="brick-video">
+                <YTFrame :url="brick.data.video" style="align-self: center; margin: 15px 0px"></YTFrame>
             </div>
             <!-- LIST -->
-            <div v-else-if="selectedType == 'list'" class="brick-list">
-                <MyInput v-for="(item, i) in brick.data.list" style="margin-bottom: 5px" v-model:value="brick.data.list[i]"></MyInput>
-                <div>
-                    <MySelect v-model:value="brick.data.listType" :options="LIST_TYPES"></MySelect>
-                    <WhiteAnimatedButton @click="addListItem">Добавить</WhiteAnimatedButton>
+            <div v-else-if="brick.type == 'list'" class="brick-list">
+                <div v-for="(item, i) in brick.data.list" style="margin-bottom: 5px" class="d-flex flex-row justify-content-start">
+                    <div v-if="brick.data.list[i].listType == 'dots'">dot.</div>
+                    <div v-else>{{ i + 1 }}.</div>
+                    {{ brick.data.list[i] }}
                 </div>
             </div>
             <!-- NONE -->
             <div v-else>choose a brick type</div>
-            <!-- <button @click="dump()">dump</button> -->
         </div>
     </div>
 </template>
 
 <script>
-import YTFrame from "./YTFrame.vue";
-const BRICK_TYPES = ["text", "heading", "quote", "image", "video", "list"];
+import YTFrame from "./constructor/YTFrame.vue";
+const BRICK_TYPES = ["text", "heading", "quote", "image", "video", "list", "spoiler"];
+const BRICK_CODES = [8, 0, 1, 5, 4, 2, 7];
 const LIST_TYPES = ["dots", "numbers"];
 
 export default {
@@ -75,6 +61,7 @@ export default {
     },
     data() {
         return {
+            isHidden: true,
             selectedType: "",
             BRICK_TYPES: BRICK_TYPES,
             LIST_TYPES: LIST_TYPES,
@@ -87,7 +74,7 @@ export default {
             this.$emit("onDelete", this.brick);
         },
         dump() {
-            //console.log("brick #" + this.brick.id + " = ", this.brick);
+            console.log("brick #" + this.brick.id + " = ", this.brick);
         },
         onImageUrl(url) {
             this.brick.data.imageUrl = url;
@@ -133,26 +120,31 @@ export default {
     },
     computed: {},
     mounted() {
-        //console.log(this.brick.type);
+        //console.log(this.brick);
         this.selectedType = this.brick.type;
         //console.log("selected type = ", this.selectedType);
         //if (this.selectedType == null || this.selectedType == undefined || this.selectedType == "") this.selectedType = "text";
     },
     watch: {
         selectedType(new_val, old_val) {
-            //console.log("watch : selectedType : new_val = " + new_val + "; old_val = " + old_val + ";");
+            //console.log("watch : selectedType : new_val = " + new_val + "; old_val = " + old_val + "; this.brick.type = " + this.brick.type + ";");
+            let dragflag = false;
+            if (this.brick.type == new_val) dragflag = true;
             if (new_val != old_val) {
                 this.brick.type = new_val;
                 // this.brick.data = {};
                 this.brickError = "";
-                // if (new_val == "spoiler") {
-                //     //console.log("selectedType: spoiler!");
-                //     this.brick.data.bricks = [];
-                // } else if (new_val == "list") {
-                //     //console.log("selectedType: list!");
-                //     this.brick.data.listType = "dots";
-                //     this.brick.data.list = [];
-                // }
+
+                if (!dragflag) {
+                    if (new_val == "spoiler") {
+                        //console.log("selectedType: spoiler!");
+                        this.brick.data.bricks = [];
+                    } else if (new_val == "list") {
+                        //console.log("selectedType: list!");
+                        this.brick.data.listType = "dots";
+                        this.brick.data.list = [];
+                    }
+                }
             }
         },
     },
@@ -193,16 +185,15 @@ function matchYoutubeUrl(url) {
     align-items: center;
     padding: 0px 15px;
 }
-.image-preview img {
+.data img {
     max-width: 100%;
     padding: 15px 0px;
+    max-height: 40vh;
 }
 .brick-container {
-    background-color: white;
     border-radius: 15px;
     padding: 10px;
     margin: 5px;
-    border: 2px solid wheat;
     width: 100%;
 }
 .props-group {
@@ -214,18 +205,22 @@ function matchYoutubeUrl(url) {
     margin: 0px 10px;
 }
 .data {
-    border-top: 1px solid black;
-    margin-top: 5px;
-    padding: 5px 10px;
 }
 .heading {
+    font-size: 25px;
     font-weight: bold;
-    font-size: 18px;
 }
 .quote {
     font-style: italic;
 }
 .author {
     width: 100%;
+}
+.spoiler-toggle {
+    background-color: lightgray;
+    cursor: pointer;
+}
+.spoiler {
+    background-color: lightblue;
 }
 </style>

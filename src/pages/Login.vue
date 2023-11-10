@@ -72,17 +72,17 @@ export default {
                 });
 
                 const response = await res.json();
+                console.log(response);
 
-                if (response.error) {
-                    this.error = response.error.message;
+                if (!response.httpCode || response.httpCode != 200) {
                     this.isBadLogin = true;
+                    this.error = response.message;
                     return;
                 }
 
-                //console.log(response)
                 this.Auth({
                     isAuth: true,
-                    token: response.token,
+                    token: response.body.token,
                     username: this.username,
                 });
 

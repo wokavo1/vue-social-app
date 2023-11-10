@@ -53,4 +53,7 @@ export default {
     min-height: 100%;
     background-color: rgb(218, 241, 250);
 }
+body {
+    background-color: rgb(218, 241, 250);
+}
 </style>

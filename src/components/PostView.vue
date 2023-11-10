@@ -1,36 +1,23 @@
 <template>
-    <div>Конструктор поста</div>
     <div class="post-title-block">
         <div class="">Заголовок поста:</div>
-        <MyInput style="margin-left: 15px; width: 80%" v-model:value="post_title"></MyInput>
+        <div>{{ post_title }}</div>
     </div>
-    <div class="post-desc-block">
+    <!-- <div class="post-desc-block">
         <div class="" style="margin-top: 15px">Краткое описание поста:</div>
-        <MyTextarea style="margin-top: 5px; width: 80%" v-model:value="post_desc"></MyTextarea>
-    </div>
+        <div>{{ post_desc }}</div>
+    </div> -->
     <div class="bricks-container">
-        <div class="dropzone" :class="isDragging ? 'active' : ''" @dragenter.prevent @dragover.prevent @drop="onDropTop($event)"></div>
         <div v-for="brick in bricks">
-            <div class="drag-container">
-                <div class="drag-anchor" draggable="true" @dragstart="startDrag($event, brick.id)" @dragend="endDrag()" @drag="onDrag($event)">
-                    <img src="../../assets/drag-vertical.svg" />
-                </div>
-                <ConstructorBrick :brick="brick" :key="brick.id" @onDelete="onBrickDelete" />
-            </div>
-            <div class="dropzone" :class="isDragging ? 'active' : ''" @dragenter.prevent @dragover.prevent @drop="onDrop($event, brick)"></div>
+            <PostBrick :brick="brick" :key="brick.id" />
         </div>
     </div>
-    <div>
-        <WhiteAnimatedButton @click="addNewBrick" class="">Добавить элемент</WhiteAnimatedButton>
-        <!-- <button @click="dump_bricks()">dump_bricks</button> -->
-    </div>
-    <GrayAnimatedButton @click="POST">Опубликовать</GrayAnimatedButton>
 </template>
 
 <script>
-import ConstructorBrick from "./ConstructorBrick.vue";
-import app_cfg from "../../app_config.js";
+import app_cfg from "../app_config.js";
 import { mapGetters, mapState, mapActions, mapMutations } from "vuex";
+import PostBrick from "./PostBrick.vue";
 
 const BRICK_TYPES = ["text", "heading", "quote", "image", "video", "list", "spoiler"];
 const BRICK_CODES = [8, 0, 1, 5, 4, 2, 7];
@@ -47,8 +34,8 @@ function getTypeIndexByCode(code) {
 
 export default {
     props: {
-        edit: {
-            type: Number,
+        post_id: {
+            type: String,
             required: false,
         },
     },
@@ -56,10 +43,53 @@ export default {
         return {
             id: 0,
             bricks: [],
-            post_title: "",
+            post_title: "s",
             post_desc: "",
             isDragging: false,
         };
+    },
+    async mounted() {
+        if (this.post_id) {
+            console.log("post_id = ", this.post_id);
+            // get post and parse it to bricks with flag modified set to false as default
+
+            try {
+                const res = await fetch(app_cfg.backend_url + "/posts/" + this.post_id, {
+                    method: "GET",
+                    cors: app_cfg.cors_mode,
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                });
+
+                const response = await res.json();
+                console.log("response = ", response);
+                const P = response.body.post[0];
+                console.log("P = ", P);
+
+                // parse it to bricks with flag modified set to false as default
+                this.post_title = P.title;
+
+                let tmp_bricks = [];
+                for (let i = 0; i < P.body.length; i++) {
+                    let tmp = {};
+                    let bdy = P.body[i].content;
+                    tmp.type = bdy.type;
+                    tmp.data = bdy;
+                    tmp.order = bdy.order;
+                    if (tmp.type == "image") {
+                        tmp.data.imageUrl = app_cfg.backend_url + "/storage/" + tmp.data.image_id;
+                    }
+                    tmp_bricks.push(tmp);
+                }
+
+                this.bricks = tmp_bricks;
+            } catch (e) {
+                console.error(e);
+            }
+        } else {
+            console.log("no post id!");
+        }
     },
     methods: {
         async POST() {
@@ -67,36 +97,10 @@ export default {
             for (let i = 0; i < this.bricks.length; i++) {
                 let serialized = JSON.parse(JSON.stringify(this.bricks[i]));
                 console.log(serialized);
-                if (serialized.type == "image") {
-                    const formData = new FormData();
-                    formData.append("file", this.bricks[i].data.image);
-
-                    try {
-                        const res2 = await fetch(app_cfg.backend_url + "/storage/upload", {
-                            method: "POST",
-                            body: formData,
-                        });
-
-                        const response2 = await res2.json();
-
-                        console.log(response2);
-
-                        if (res2.ok) {
-                            let img_id = response2.body.id;
-                            serialized.data.image_id = img_id;
-                            console.log("File uploaded successfully.");
-                        } else {
-                            console.log("File upload failed with response: " + res2 + JSON.stringify(res2));
-                        }
-                    } catch (error) {
-                        console.log(error);
-                    }
-                }
 
                 let tmp = {};
-                tmp.content = serialized.data;
-                tmp.content.order = serialized.order;
-                tmp.content.type = this.bricks[i].type;
+                tmp.data = serialized.data;
+                tmp.data.order = serialized.order;
 
                 tmp.contentType = BRICK_CODES[getTypeIndexByName(serialized.type)];
 
@@ -263,33 +267,7 @@ export default {
             token: (state) => state.auth.token,
         }),
     },
-    components: { ConstructorBrick },
-    async mounted() {
-        if (this.edit) {
-            console.log("edit = ", this.edit);
-            // get post and parse it to bricks with flag modified set to false as default
-
-            try {
-                const res = await fetch(app_cfg.backend_url + "/posts/" + this.edit, {
-                    method: "GET",
-                    cors: app_cfg.cors_mode,
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                });
-
-                const response = await res.json();
-
-                console.log("response = ", response);
-
-                // parse it to bricks with flag modified set to false as default
-            } catch (e) {
-                console.error(e);
-            }
-        } else {
-            console.log("create");
-        }
-    },
+    components: { PostBrick },
 };
 </script>
 
@@ -312,9 +290,11 @@ export default {
 .post-title-block {
     display: flex;
     flex-direction: row;
-    justify-content: space-between;
+    justify-content: start;
     align-items: center;
     margin-bottom: 15px;
+    font-size: 50px;
+    font-style: bold;
 }
 .post-desc-block {
     display: flex;

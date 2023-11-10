@@ -1,8 +1,8 @@
 <template>
     <label class="file-select">
         <div class="select-button">
-            <span v-if="value">Selected File: {{ value.name }}</span>
-            <span v-else>Select File</span>
+            <span v-if="value">Выбран файл: {{ value.name }}</span>
+            <span v-else>Выберите файл</span>
         </div>
         <input type="file" :accept="accept" @change="handleFileChange" />
     </label>

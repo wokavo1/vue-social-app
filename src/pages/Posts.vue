@@ -16,6 +16,7 @@
 <script>
 import PostCard from "../components/PostCard.vue";
 import PostFilters from "../components/PostFilters.vue";
+import app_cfg from "../app_config.js";
 
 export default {
     data() {
@@ -26,39 +27,58 @@ export default {
     methods: {
         async applyFilters(filters) {
             console.log(filters);
+            try {
+                const res = await fetch(app_cfg.backend_url + "/posts?titleQuery=" + filters.searchQuery, {
+                    method: "GET",
+                    cors: app_cfg.cors_mode,
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                });
+
+                const response = await res.json();
+
+                console.log("response = ", response);
+
+                this.posts = response.body.posts.map((p) => {
+                    return {
+                        id: p._id,
+                        title: p.title,
+                        description: "NOT_IMPLEMENTED",
+                        img: "https://thecsrjournal.in/wp-content/uploads/2018/10/speed-post.png",
+                        karma: p.karmaCounter,
+                    };
+                });
+            } catch (e) {
+                console.error(e);
+            }
         },
         async getPosts() {
-            this.posts = [
-                {
-                    id: 1,
-                    title: "Пост 1",
-                    description: "Описание к первому посту.",
-                    img: "https://thecsrjournal.in/wp-content/uploads/2018/10/speed-post.png",
-                    karma: 2,
-                },
-                {
-                    id: 2,
-                    title: "Пост 2",
-                    description: "Описание ко второму посту.",
-                    img: "https://thecsrjournal.in/wp-content/uploads/2018/10/speed-post.png",
-                    karma: -2,
-                },
-                {
-                    id: 3,
-                    title: "Lorem, ipsum dolor.",
-                    description:
-                        "Lorem ipsum dolor sit amet consectetur adipisicing elit. Sint totam veniam molestiae, culpa optio excepturi autem repellat quibusdam iusto vitae?",
-                    img: "https://thecsrjournal.in/wp-content/uploads/2018/10/speed-post.png",
-                    karma: 10,
-                },
-                {
-                    id: 4,
-                    title: "Lorem ipsum dolor sit.",
-                    description: "Lorem ipsum dolor sit amet consectetur, adipisicing elit. Quo, expedita quod iure itaque voluptas quis!",
-                    img: "https://thecsrjournal.in/wp-content/uploads/2018/10/speed-post.png",
-                    karma: -10,
-                },
-            ];
+            try {
+                const res = await fetch(app_cfg.backend_url + "/posts", {
+                    method: "GET",
+                    cors: app_cfg.cors_mode,
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                });
+
+                const response = await res.json();
+
+                console.log("response = ", response);
+
+                this.posts = response.body.posts.map((p) => {
+                    return {
+                        id: p._id,
+                        title: p.title,
+                        description: "NOT_IMPLEMENTED",
+                        img: "https://thecsrjournal.in/wp-content/uploads/2018/10/speed-post.png",
+                        karma: p.karmaCounter,
+                    };
+                });
+            } catch (e) {
+                console.error(e);
+            }
         },
     },
     components: { PostCard, PostFilters },

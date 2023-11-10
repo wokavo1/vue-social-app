@@ -28,18 +28,7 @@
 
 <script>
 import PostTag from "./PostTag.vue";
-
-const TEMP_TAGS_POOL = [
-    { id: 1, name: "Игры" },
-    { id: 2, name: "Кино" },
-    { id: 3, name: "Сериалы" },
-    { id: 4, name: "Путешествия" },
-    { id: 5, name: "Хобби" },
-    { id: 6, name: "Программирование" },
-    { id: 7, name: "Природа" },
-    { id: 8, name: "Лайфхаки" },
-    { id: 9, name: "Мемы" },
-];
+import app_cfg from "../app_config.js";
 
 export default {
     emits: ["apply_filters"],
@@ -57,13 +46,28 @@ export default {
         applyFilters() {
             this.$emit("apply_filters", this.filters);
         },
-        searchTags() {
-            if (this.tagsSearchQuery == "") {
-                this.searchedTags = TEMP_TAGS_POOL;
-            } else {
-                this.searchedTags = TEMP_TAGS_POOL.filter((tag) => {
-                    return tag.name.toLowerCase().includes(this.tagsSearchQuery.toLowerCase());
+        async searchTags() {
+            try {
+                const res = await fetch(app_cfg.backend_url + "/tags?name=" + this.tagsSearchQuery, {
+                    method: "GET",
+                    cors: app_cfg.cors_mode,
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
                 });
+
+                const response = await res.json();
+
+                console.log("response = ", response);
+
+                this.searchedTags = response.body.tags.map((t) => {
+                    return {
+                        id: t._id,
+                        name: t.name,
+                    };
+                });
+            } catch (e) {
+                console.error(e);
             }
         },
         onTagSelect(tag) {
@@ -84,7 +88,7 @@ export default {
         },
     },
     mounted() {
-        this.searchedTags = TEMP_TAGS_POOL;
+        this.searchTags();
     },
     components: { PostTag },
 };

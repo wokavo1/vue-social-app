@@ -15,7 +15,7 @@
             <div style="margin-left: 21px" :class="{ greenKarma: post.karma > 0, redKarma: post.karma < 0 }">
                 {{ post.karma }}
             </div>
-            <GrayAnimatedButton style="align-self: end; margin: 10px"> Читать </GrayAnimatedButton>
+            <GrayAnimatedButton style="align-self: end; margin: 10px" @click="$router.push('/posts/view/' + post.id)"> Читать </GrayAnimatedButton>
         </div>
     </div>
 </template>
@@ -28,6 +28,9 @@ export default {
             type: Object,
             required: true,
         },
+    },
+    mounted() {
+        console.log("post = ", this.post);
     },
 };
 </script>

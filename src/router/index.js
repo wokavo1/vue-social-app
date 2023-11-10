@@ -6,6 +6,7 @@ import RegSuccess from "../pages/RegSuccess.vue";
 import SecondPage from "../pages/SecondPage.vue";
 import Posts from "../pages/Posts.vue";
 import PostCreate from "../pages/PostCreate.vue";
+import Post from "../pages/Post.vue";
 
 const routes = [
     {
@@ -35,6 +36,10 @@ const routes = [
     {
         path: "/posts/create",
         component: PostCreate,
+    },
+    {
+        path: "/posts/view/:id",
+        component: Post,
     },
 ];
 
