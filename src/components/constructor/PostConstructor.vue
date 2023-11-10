@@ -1,30 +1,33 @@
 <template>
-    <div>Конструктор поста</div>
-    <div class="post-title-block">
-        <div class="">Заголовок поста:</div>
-        <MyInput style="margin-left: 15px; width: 80%" v-model:value="post_title"></MyInput>
-    </div>
-    <div class="post-desc-block">
-        <div class="" style="margin-top: 15px">Краткое описание поста:</div>
-        <MyTextarea style="margin-top: 5px; width: 80%" v-model:value="post_desc"></MyTextarea>
-    </div>
-    <div class="bricks-container">
-        <div class="dropzone" :class="isDragging ? 'active' : ''" @dragenter.prevent @dragover.prevent @drop="onDropTop($event)"></div>
-        <div v-for="brick in bricks">
-            <div class="drag-container">
-                <div class="drag-anchor" draggable="true" @dragstart="startDrag($event, brick.id)" @dragend="endDrag()" @drag="onDrag($event)">
-                    <img src="../../assets/drag-vertical.svg" />
-                </div>
-                <ConstructorBrick :brick="brick" :key="brick.id" @onDelete="onBrickDelete" />
-            </div>
-            <div class="dropzone" :class="isDragging ? 'active' : ''" @dragenter.prevent @dragover.prevent @drop="onDrop($event, brick)"></div>
+    <div v-if="!isAuth">Для создания постов необходимо авторизоваться</div>
+    <div v-else>
+        <div>Конструктор поста</div>
+        <div class="post-title-block">
+            <div class="">Заголовок поста:</div>
+            <MyInput style="margin-left: 15px; width: 80%" v-model:value="post_title"></MyInput>
         </div>
+        <div class="post-desc-block">
+            <div class="" style="margin-top: 15px">Краткое описание поста:</div>
+            <MyTextarea style="margin-top: 5px; width: 80%" v-model:value="post_desc"></MyTextarea>
+        </div>
+        <div class="bricks-container">
+            <div class="dropzone" :class="isDragging ? 'active' : ''" @dragenter.prevent @dragover.prevent @drop="onDropTop($event)"></div>
+            <div v-for="brick in bricks">
+                <div class="drag-container">
+                    <div class="drag-anchor" draggable="true" @dragstart="startDrag($event, brick.id)" @dragend="endDrag()" @drag="onDrag($event)">
+                        <img src="../../assets/drag-vertical.svg" />
+                    </div>
+                    <ConstructorBrick :brick="brick" :key="brick.id" @onDelete="onBrickDelete" />
+                </div>
+                <div class="dropzone" :class="isDragging ? 'active' : ''" @dragenter.prevent @dragover.prevent @drop="onDrop($event, brick)"></div>
+            </div>
+        </div>
+        <div>
+            <WhiteAnimatedButton @click="addNewBrick" class="">Добавить элемент</WhiteAnimatedButton>
+            <!-- <button @click="dump_bricks()">dump_bricks</button> -->
+        </div>
+        <GrayAnimatedButton @click="POST">Опубликовать</GrayAnimatedButton>
     </div>
-    <div>
-        <WhiteAnimatedButton @click="addNewBrick" class="">Добавить элемент</WhiteAnimatedButton>
-        <!-- <button @click="dump_bricks()">dump_bricks</button> -->
-    </div>
-    <GrayAnimatedButton @click="POST">Опубликовать</GrayAnimatedButton>
 </template>
 
 <script>

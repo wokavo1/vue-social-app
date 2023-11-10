@@ -23,7 +23,7 @@
         </div>
         <div class="row">
             <div class="col d-flex justify-content-center">
-                <a style="align-self: center; margin-top: 15px" href="/registration" @click="$router.push('/registration')">
+                <a style="align-self: center; margin-top: 15px; cursor: pointer" @click="$router.push('/registration')">
                     Нет аккаунта? Создать аккаунт
                 </a>
             </div>
