@@ -17,6 +17,9 @@
                             <div class="col-auto px-2">
                                 <WhiteAnimatedButton @click="$router.push('/posts/create')">Post Create</WhiteAnimatedButton>
                             </div>
+                            <div class="col-auto px-2">
+                                <WhiteAnimatedButton @click="$router.push('/storage')">Хранилище файлов</WhiteAnimatedButton>
+                            </div>
                         </div>
                     </div>
                     <div class="col-auto">
