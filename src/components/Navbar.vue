@@ -6,16 +6,16 @@
                     <div class="col">
                         <div class="row">
                             <div class="col-auto px-2">
-                                <WhiteAnimatedButton @click="$router.push('/')">Main Page</WhiteAnimatedButton>
+                                <WhiteAnimatedButton @click="$router.push('/')">Главная страница</WhiteAnimatedButton>
                             </div>
                             <div class="col-auto px-2">
-                                <WhiteAnimatedButton @click="$router.push('/secondpage')">Second Page</WhiteAnimatedButton>
+                                <WhiteAnimatedButton @click="$router.push('/secondpage')">Рандомайзер</WhiteAnimatedButton>
                             </div>
                             <div class="col-auto px-2">
-                                <WhiteAnimatedButton @click="$router.push('/posts')">Posts Page</WhiteAnimatedButton>
+                                <WhiteAnimatedButton @click="$router.push('/posts')">Посты</WhiteAnimatedButton>
                             </div>
                             <div class="col-auto px-2">
-                                <WhiteAnimatedButton @click="$router.push('/posts/create')">Post Create</WhiteAnimatedButton>
+                                <WhiteAnimatedButton @click="$router.push('/posts/create')">Создать пост</WhiteAnimatedButton>
                             </div>
                             <div class="col-auto px-2">
                                 <WhiteAnimatedButton @click="$router.push('/storage')">Хранилище файлов</WhiteAnimatedButton>
